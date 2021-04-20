@@ -6,7 +6,9 @@
 comp = iDynTree.KinDynComputations();
 
 % Load model from an URDF file
-comp.loadRobotModelFromFile('../models/iCubGenova02.urdf');
+mdlLoader = iDynTree.ModelLoader();
+modelLoaded = mdlLoader.loadModelFromFile('../models/iCubGenova02.urdf');
+comp.loadRobotModel(mdlLoader.model);
 
 % Check if the model was correctly created by printing the model
 comp.getRobotModel().toString()
@@ -20,7 +22,9 @@ comp.getRobotModel().toString()
 
 robotState = {};
 robotState.world_H_base = iDynTree.Transform.Identity();
-robotState.base_vel     = iDynTree.Twist.Zero();
+robotState.base_vel     = iDynTree.Twist();
+robotState.base_vel.zero();
+
 % The joint pos/vel vectors are automatically resize with a constructor
 % that takes in input the robot model
 robotState.qj           = iDynTree.VectorDynSize();
@@ -33,12 +37,10 @@ robotState.dqj.zero();
 robotState.gravity      = iDynTree.Vector3();
 robotState.gravity.fromMatlab([0,0,-9.81]);
 
-% Actually set the state in the kinDynComp class (we use the setted that
-% does not requires to set the base variables and assume that they are
-% the identity and zero, because the full one for some reason does not
-% works)
-% comp.setRobotState(robotState.world_H_base,robotState.qj,robotState.base_vel,robotState.dqj,robotState.gravity);
-comp.setRobotState(robotState.qj,robotState.dqj,robotState.gravity);
+% Actually set the state in the kinDynComp class. If you assume that the base orientation and pose are
+% the identity and zero, you don't need to set the base variables. And, you can use the short setRobotState command.
+comp.setRobotState(robotState.world_H_base,robotState.qj,robotState.base_vel,robotState.dqj,robotState.gravity);
+% comp.setRobotState(robotState.qj,robotState.dqj,robotState.gravity);
 
 %% Compute relative transform between frames
 
